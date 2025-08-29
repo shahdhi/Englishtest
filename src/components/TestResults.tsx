@@ -2,7 +2,6 @@ import React from 'react';
 import { Download, RotateCcw, GraduationCap, BookOpen, Headphones, PenTool, MessageSquare, Mic, FileText } from 'lucide-react';
 import { StudentInfo } from '../types/test';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 interface TestResultsProps {
   answers: Record<number, string>;
@@ -54,104 +53,110 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
   const handleDownload = async () => {
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const margin = 20;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
       const contentWidth = pageWidth - (margin * 2);
       let yPosition = margin;
       
-      // Header
-      pdf.setFillColor(30, 64, 175); // Sha Bridge College blue
-      pdf.roundedRect(0, 0, pageWidth, 35, 6, 6, 'F');
+      // Set default font
+      pdf.setFont('helvetica');
       
-      // College Logo and Name
+      // Header with college branding
+      pdf.setFillColor(30, 64, 175);
+      pdf.rect(0, 0, pageWidth, 25, 'F');
+      
+      // College name and logo area
       pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(18);
-      pdf.setFont('times', 'bold');
-      pdf.text('SHA BRIDGE COLLEGE', margin, 15);
-      pdf.setFontSize(10);
-      pdf.setFont('times', 'normal');
-      pdf.text('English Language Assessment Center', margin, 22);
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SHA BRIDGE COLLEGE', margin, 12);
       
-      yPosition = 40;
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Language Assessment Center', margin, 18);
+      
+      // Add a simple logo (in a real implementation, you would add an actual image)
+      pdf.setFillColor(255, 255, 255);
+      pdf.circle(pageWidth - 15, 12, 5, 'F');
+      pdf.setTextColor(30, 64, 175);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SBC', pageWidth - 15, 14, { align: 'center' });
+      
+      yPosition = 35;
       
       // Title
       pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(16);
-      pdf.setFont('times', 'bold');
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
       pdf.text('ENGLISH PROFICIENCY TEST RESULTS', pageWidth / 2, yPosition, { align: 'center' });
       
-      yPosition += 12;
+      yPosition += 10;
       
       // Student Information Box
-      pdf.setFillColor(248, 250, 252);
-      pdf.roundedRect(margin, yPosition, contentWidth, 20, 4, 4, 'F');
-      pdf.setDrawColor(226, 232, 240);
-      pdf.roundedRect(margin, yPosition, contentWidth, 20, 4, 4, 'S');
+      pdf.setFillColor(240, 240, 240);
+      pdf.roundedRect(margin, yPosition, contentWidth, 25, 3, 3, 'F');
+      pdf.setDrawColor(200, 200, 200);
+      pdf.roundedRect(margin, yPosition, contentWidth, 25, 3, 3, 'S');
       
       pdf.setFontSize(10);
-      pdf.setFont('times', 'bold');
-      pdf.setFont('times', 'bold');
-      pdf.text('STUDENT INFORMATION', margin + 3, yPosition + 5);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('STUDENT INFORMATION', margin + 5, yPosition + 7);
       
-      pdf.setFontSize(8);
-        // Note: In a real implementation, you would load the logo image
-      pdf.setFont('times', 'normal');
-        pdf.setFillColor(255, 255, 255);
-        pdf.circle(20, 20, 5, 'F');
-        pdf.setTextColor(59, 130, 246);
-        pdf.setFontSize(7);
-        pdf.setFont('times', 'bold');
-        pdf.text('SBC', 20, 22, { align: 'center' });
-        pdf.text(`Test Date: ${new Date().toLocaleDateString()}`, margin + 60, yPosition + 10);
-        pdf.text(`Self-Assessed Level: ${studentInfo?.level}`, margin + 60, yPosition + 15);
-      
-      yPosition += 25;
-      
-      // Main Score Section
-      pdf.setFillColor(255, 255, 255);
-      pdf.roundedRect(margin, yPosition, contentWidth, 25, 5, 5, 'F');
-      pdf.setDrawColor(226, 232, 240);
-      pdf.roundedRect(margin, yPosition, contentWidth, 25, 5, 5, 'S');
-      
-      // Score Display
-      pdf.setFontSize(24);
-      pdf.setFont('times', 'bold');
-      pdf.setTextColor(30, 64, 175);
-      pdf.text(`${totalScore}/56`, pageWidth / 2, yPosition + 12, { align: 'center' });
-      
-      pdf.setFontSize(8);
-      pdf.setFont('times', 'normal');
-      pdf.setTextColor(107, 114, 128);
-      pdf.text(`Total Score (${percentage}%)`, pageWidth / 2, yPosition + 18, { align: 'center' });
-      
-      // CEFR Level Badge
-      const badgeWidth = 35;
-      const badgeHeight = 7;
-      const badgeX = (pageWidth - badgeWidth) / 2;
-      const badgeY = yPosition + 20;
-      
-      // Set badge color based on CEFR level
-      if (cefrLevel.level === 'C2') pdf.setFillColor(147, 51, 234); // purple
-      else if (cefrLevel.level === 'C1') pdf.setFillColor(37, 99, 235); // blue
-      else if (cefrLevel.level === 'B2') pdf.setFillColor(20, 184, 166); // teal
-      else if (cefrLevel.level === 'B1') pdf.setFillColor(245, 158, 11); // yellow
-      else if (cefrLevel.level === 'A2') pdf.setFillColor(249, 115, 22); // orange
-      else pdf.setFillColor(239, 68, 68); // red
-      
-      pdf.roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 4, 4, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(10);
-      pdf.setFont('times', 'bold');
-      pdf.text(`${cefrLevel.level} - ${cefrLevel.label}`, pageWidth / 2, badgeY + 5, { align: 'center' });
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      if (studentInfo) {
+        pdf.text(`Name: ${studentInfo.firstName} ${studentInfo.lastName}`, margin + 5, yPosition + 14);
+        pdf.text(`Test Date: ${new Date().toLocaleDateString()}`, margin + contentWidth/2, yPosition + 14);
+        pdf.text(`Self-Assessed Level: ${studentInfo.level}`, margin + 5, yPosition + 20);
+      }
       
       yPosition += 30;
       
-      // Section Breakdown
+      // Main Score Section
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(margin, yPosition, contentWidth, 25, 3, 3, 'F');
+      pdf.setDrawColor(200, 200, 200);
+      pdf.roundedRect(margin, yPosition, contentWidth, 25, 3, 3, 'S');
+      
+      // Score Display
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(30, 64, 175);
+      pdf.text(`${totalScore}/56`, margin + 15, yPosition + 15);
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Total Score (${percentage}%)`, margin + 15, yPosition + 21);
+      
+      // CEFR Level Badge
+      const badgeWidth = 40;
+      const badgeX = pageWidth - margin - badgeWidth;
+      
+      // Set badge color based on CEFR level
+      if (cefrLevel.level === 'C2') pdf.setFillColor(147, 51, 234);
+      else if (cefrLevel.level === 'C1') pdf.setFillColor(37, 99, 235);
+      else if (cefrLevel.level === 'B2') pdf.setFillColor(20, 184, 166);
+      else if (cefrLevel.level === 'B1') pdf.setFillColor(245, 158, 11);
+      else if (cefrLevel.level === 'A2') pdf.setFillColor(249, 115, 22);
+      else pdf.setFillColor(239, 68, 68);
+      
+      pdf.roundedRect(badgeX, yPosition + 5, badgeWidth, 15, 3, 3, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${cefrLevel.level} - ${cefrLevel.label}`, badgeX + badgeWidth/2, yPosition + 13, { align: 'center' });
+      
+      yPosition += 30;
+      
+      // Section Breakdown Title
       pdf.setTextColor(0, 0, 0);
       pdf.setFontSize(12);
-      pdf.setFont('times', 'bold');
-      pdf.text('SECTION BREAKDOWN', pageWidth / 2, yPosition, { align: 'center' });
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SECTION BREAKDOWN', margin, yPosition);
       
       yPosition += 8;
       
@@ -166,46 +171,46 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
       
       // Draw sections in 2x3 grid
       const sectionWidth = (contentWidth - 10) / 2;
-      const sectionHeight = 12;
+      const sectionHeight = 20;
       
       sections.forEach((section, index) => {
         const col = index % 2;
         const row = Math.floor(index / 2);
         const x = margin + (col * (sectionWidth + 10));
-        const y = yPosition + (row * (sectionHeight + 3));
+        const y = yPosition + (row * (sectionHeight + 5));
         
         // Section box
-        pdf.setFillColor(248, 250, 252);
+        pdf.setFillColor(248, 248, 248);
         pdf.roundedRect(x, y, sectionWidth, sectionHeight, 2, 2, 'F');
-        pdf.setDrawColor(226, 232, 240);
+        pdf.setDrawColor(220, 220, 220);
         pdf.roundedRect(x, y, sectionWidth, sectionHeight, 2, 2, 'S');
         
         // Section name and score
-        pdf.setFontSize(8);
-        pdf.setFont('times', 'bold');
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(0, 0, 0);
-        pdf.text(section.name, x + 2, y + 4);
+        pdf.text(section.name, x + 5, y + 7);
         
-        pdf.setFontSize(6);
-        pdf.setFont('times', 'normal');
-        pdf.setTextColor(107, 114, 128);
-        pdf.text(`${section.score}/${section.max} points`, x + 2, y + 7);
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`${section.score}/${section.max} points`, x + 5, y + 12);
         
         // Percentage
         const percentage = Math.round((section.score / section.max) * 100);
         pdf.setFontSize(10);
-        pdf.setFont('times', 'bold');
+        pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(30, 64, 175);
-        pdf.text(`${percentage}%`, x + sectionWidth - 2, y + 6, { align: 'right' });
+        pdf.text(`${percentage}%`, x + sectionWidth - 5, y + 10, { align: 'right' });
         
         // Progress bar
-        const barWidth = sectionWidth - 8;
-        const barHeight = 1.5;
-        const barX = x + 4;
-        const barY = y + 9;
+        const barWidth = sectionWidth - 10;
+        const barHeight = 3;
+        const barX = x + 5;
+        const barY = y + 15;
         
         // Background bar
-        pdf.setFillColor(229, 231, 235);
+        pdf.setFillColor(220, 220, 220);
         pdf.roundedRect(barX, barY, barWidth, barHeight, 1, 1, 'F');
         
         // Progress bar
@@ -213,13 +218,13 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
         pdf.roundedRect(barX, barY, (barWidth * percentage) / 100, barHeight, 1, 1, 'F');
       });
       
-      yPosition += 45;
+      yPosition += 85;
       
       // CEFR Level Guide
       pdf.setFontSize(12);
-      pdf.setFont('times', 'bold');
+      pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(0, 0, 0);
-      pdf.text('CEFR LEVEL GUIDE', pageWidth / 2, yPosition, { align: 'center' });
+      pdf.text('CEFR LEVEL GUIDE', margin, yPosition);
       
       yPosition += 8;
       
@@ -234,13 +239,13 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
       
       // Draw CEFR levels in 3x2 grid
       const levelWidth = (contentWidth - 20) / 3;
-      const levelHeight = 10;
+      const levelHeight = 15;
       
       cefrLevels.forEach((level, index) => {
         const col = index % 3;
-        const row = Math.floor(index / 2);
+        const row = Math.floor(index / 3);
         const x = margin + (col * (levelWidth + 10));
-        const y = yPosition + (row * (levelHeight + 3));
+        const y = yPosition + (row * (levelHeight + 5));
         
         // Highlight current level
         const isCurrentLevel = level.level === cefrLevel.level;
@@ -249,36 +254,35 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
           pdf.setFillColor(level.color[0], level.color[1], level.color[2]);
           pdf.setDrawColor(level.color[0], level.color[1], level.color[2]);
         } else {
-          pdf.setFillColor(248, 250, 252);
-          pdf.setDrawColor(226, 232, 240);
+          pdf.setFillColor(248, 248, 248);
+          pdf.setDrawColor(220, 220, 220);
         }
         
         pdf.roundedRect(x, y, levelWidth, levelHeight, 2, 2, 'FD');
         
         // Level text
-        pdf.setFontSize(7);
-        pdf.setFont('times', 'bold');
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(isCurrentLevel ? 255 : 0, isCurrentLevel ? 255 : 0, isCurrentLevel ? 255 : 0);
-        pdf.text(level.level, x + 2, y + 4);
+        pdf.text(level.level, x + 3, y + 6);
         
         pdf.setFontSize(6);
-        pdf.setFont('times', 'normal');
-        pdf.text(level.label, x + 2, y + 6);
-        pdf.text(level.points, x + 2, y + 8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(level.label, x + 3, y + 10);
+        pdf.text(level.points, x + 3, y + 13);
       });
       
-      yPosition += 25;
+      yPosition += 45;
       
       // Footer
-      pdf.setFillColor(248, 250, 252);
-      pdf.roundedRect(0, pageHeight - 20, pageWidth, 20, 4, 4, 'F');
+      pdf.setFillColor(240, 240, 240);
+      pdf.rect(0, pageHeight - 20, pageWidth, 20, 'F');
       
-      pdf.setFontSize(7);
-      pdf.setFont('times', 'normal');
-      pdf.setTextColor(107, 114, 128);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(100, 100, 100);
       pdf.text('Sha Bridge College Language Assessment Center', pageWidth / 2, pageHeight - 14, { align: 'center' });
-      pdf.setFontSize(6);
-      pdf.setFont('times', 'bold');
+      pdf.setFontSize(7);
       pdf.text('For official certification or academic placement, please contact our Academic Affairs office.', pageWidth / 2, pageHeight - 8, { align: 'center' });
       
       pdf.save(`Sha_Bridge_College_English_Assessment_${studentInfo?.lastName || 'Student'}_${new Date().toISOString().split('T')[0]}.pdf`);
