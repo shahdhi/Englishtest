@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { StudentInfoForm } from './components/StudentInfoForm';
 import { TestHeader } from './components/TestHeader';
@@ -18,6 +18,11 @@ function App() {
   const [currentSection, setCurrentSection] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
+
+  // Scroll to top when section changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentSection, phase]);
 
   // Total test time: 60 minutes (3600 seconds)
   const handleTimeUp = useCallback(() => {
