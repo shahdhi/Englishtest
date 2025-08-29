@@ -23,7 +23,7 @@ export const TestHeader: React.FC<TestHeaderProps> = ({
     <div className="bg-white border-b-2 border-blue-800 px-6 py-5 sticky top-0 z-10 shadow-lg">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <img src="/sha-bridge-logo.png" alt="Sha Bridge College Logo" className="w-12 h-12" onError={(e) => {
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling?.classList.remove('hidden');
