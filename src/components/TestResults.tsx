@@ -70,13 +70,6 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
       pdf.setFillColor(30, 64, 175);
       pdf.rect(0, 0, pageWidth, 25, 'F');
       
-      // Add logo placeholder with text (since we can't directly add external images in this example)
-      pdf.setFillColor(255, 255, 255);
-      pdf.roundedRect(pageWidth - margin - 20, 5, 20, 15, 2, 2, 'F');
-      pdf.setTextColor(30, 64, 175);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('SBC', pageWidth - margin - 10, 13, { align: 'center' });
       
       // College name and logo area
       pdf.setTextColor(255, 255, 255);
