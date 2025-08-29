@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, RotateCcw } from 'lucide-react';
+import { Play, Volume2, RotateCcw } from 'lucide-react';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { Question } from '../types/test';
 
@@ -16,36 +16,35 @@ export const ListeningSection: React.FC<ListeningSectionProps> = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
+  const [playCount, setPlayCount] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Audio file path - update this to match your actual file
   const audioFile = '/audio/listening-section.mp3';
+  const maxPlays = 2; // Set maximum number of plays
 
   const handlePlayAudio = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current.play()
-          .then(() => setIsPlaying(true))
-          .catch(error => console.error('Error playing audio:', error));
-        
-        if (!hasPlayed) {
-          setHasPlayed(true);
-        }
-      }
+    if (audioRef.current && playCount < maxPlays && !isPlaying) {
+      audioRef.current.play()
+        .then(() => {
+          setIsPlaying(true);
+          if (!hasPlayed) {
+            setHasPlayed(true);
+          }
+          // Increment play count when starting a new play
+          setPlayCount(prev => prev + 1);
+        })
+        .catch(error => console.error('Error playing audio:', error));
     }
   };
 
   const handleResetAudio = () => {
-    if (audioRef.current) {
+    if (audioRef.current && playCount < maxPlays) {
       audioRef.current.currentTime = 0;
       audioRef.current.pause();
       setIsPlaying(false);
-      setHasPlayed(false);
     }
   };
 
@@ -96,34 +95,50 @@ export const ListeningSection: React.FC<ListeningSectionProps> = ({
         <h3 className="text-lg font-semibold text-blue-800 mb-3">Listening Instructions</h3>
         <p className="text-blue-700 mb-4">
           You will hear a workplace conversation between two colleagues discussing a quarterly sales report. 
-          Listen carefully and answer the questions that follow. The audio will play only once.
+          Listen carefully and answer the questions that follow. 
+          <strong> You can play the audio up to {maxPlays} times. Once started, the audio cannot be paused.</strong>
         </p>
         
         <div className="flex items-center gap-4 mb-4">
           <button
             onClick={handlePlayAudio}
+            disabled={playCount >= maxPlays || isPlaying}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              isPlaying
-                ? 'bg-blue-700 text-white'
+              playCount >= maxPlays
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : isPlaying
+                ? 'bg-blue-400 text-white cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
             }`}
           >
             {isPlaying ? (
               <>
-                <Pause className="w-5 h-5" />
-                Pause Audio
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                </div>
+                Playing...
+              </>
+            ) : playCount >= maxPlays ? (
+              <>
+                <Volume2 className="w-5 h-5" />
+                No Plays Remaining
               </>
             ) : (
               <>
                 <Play className="w-5 h-5" />
-                Play Audio
+                Play Audio ({maxPlays - playCount} {maxPlays - playCount === 1 ? 'play' : 'plays'} remaining)
               </>
             )}
           </button>
           
           <button
             onClick={handleResetAudio}
-            className="flex items-center gap-2 px-4 py-3 rounded-lg font-medium bg-gray-200 hover:bg-gray-300 text-gray-700 transition-all duration-200"
+            disabled={playCount >= maxPlays || isPlaying}
+            className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+              playCount >= maxPlays || isPlaying
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
           >
             <RotateCcw className="w-4 h-4" />
             Reset
@@ -132,9 +147,14 @@ export const ListeningSection: React.FC<ListeningSectionProps> = ({
           {isPlaying && (
             <div className="flex items-center gap-2 text-blue-700">
               <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-              <span className="text-sm">Audio is playing...</span>
+              <span className="text-sm">Audio is playing (cannot be paused)</span>
             </div>
           )}
+        </div>
+
+        {/* Play counter */}
+        <div className="mb-3 text-sm text-blue-700">
+          <strong>Plays used:</strong> {playCount} of {maxPlays}
         </div>
 
         {/* Audio progress bar */}
@@ -148,19 +168,6 @@ export const ListeningSection: React.FC<ListeningSectionProps> = ({
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>
-
-        {hasPlayed && (
-          <div className="mt-4 p-4 bg-white rounded-lg border border-blue-200">
-            <h4 className="font-medium text-gray-800 mb-2">Audio Transcript (For Reference)</h4>
-            <div className="text-sm text-gray-700 space-y-2">
-              <p><strong>Anna:</strong> "Hi Mark, have you had a chance to look at the quarterly sales report yet?"</p>
-              <p><strong>Mark:</strong> "Hi Anna, yes, I went through it this morning. The figures are generally positive, especially in the Asian market. However, I'm a bit concerned about the dip in sales last month in Europe."</p>
-              <p><strong>Anna:</strong> "I saw that too. I think it might be related to the delayed marketing campaign. Let's schedule a brief meeting with the European team to discuss it. How about tomorrow at 10 am?"</p>
-              <p><strong>Mark:</strong> "That works for me. I'll send out the calendar invites. Should we ask them to prepare some initial thoughts on the decline?"</p>
-              <p><strong>Anna:</strong> "That's a good idea. Let's ask them to bring any data they have on customer feedback from that period as well."</p>
-            </div>
-          </div>
-        )}
       </div>
 
       {hasPlayed && (
