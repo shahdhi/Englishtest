@@ -62,9 +62,21 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
       // Set default font
       pdf.setFont('helvetica');
       
-      // Header with college branding
+      // Load and add logo
+      const logoUrl = 'https://copilot.microsoft.com/th/id/BCO.1671fab5-16d2-493f-999e-daadcc92b63b.png';
+      
+      // Add logo to PDF (this is a simplified approach)
+      // In a real implementation, you would need to convert the image to a data URL
       pdf.setFillColor(30, 64, 175);
       pdf.rect(0, 0, pageWidth, 25, 'F');
+      
+      // Add logo placeholder with text (since we can't directly add external images in this example)
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(pageWidth - margin - 20, 5, 20, 15, 2, 2, 'F');
+      pdf.setTextColor(30, 64, 175);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SBC', pageWidth - margin - 10, 13, { align: 'center' });
       
       // College name and logo area
       pdf.setTextColor(255, 255, 255);
@@ -75,14 +87,6 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       pdf.text('Language Assessment Center', margin, 18);
-      
-      // Add a simple logo (in a real implementation, you would add an actual image)
-      pdf.setFillColor(255, 255, 255);
-      pdf.circle(pageWidth - 15, 12, 5, 'F');
-      pdf.setTextColor(30, 64, 175);
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('SBC', pageWidth - 15, 14, { align: 'center' });
       
       yPosition = 35;
       
@@ -298,7 +302,7 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
-            <img src="/sha-bridge-logo.png" alt="Sha Bridge College Logo" className="w-8 h-8" onError={(e) => {
+            <img src="https://copilot.microsoft.com/th/id/BCO.1671fab5-16d2-493f-999e-daadcc92b63b.png" alt="Sha Bridge College Logo" className="w-8 h-8" onError={(e) => {
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling?.classList.remove('hidden');
             }} />
@@ -622,7 +626,7 @@ export const TestResults: React.FC<TestResultsProps> = ({ answers, studentInfo, 
         {/* Footer */}
         <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <img src="/sha-bridge-logo.png" alt="Sha Bridge College Logo" className="w-6 h-6" onError={(e) => {
+            <img src="https://copilot.microsoft.com/th/id/BCO.1671fab5-16d2-493f-999e-daadcc92b63b.png" alt="Sha Bridge College Logo" className="w-6 h-6" onError={(e) => {
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling?.classList.remove('hidden');
             }} />
