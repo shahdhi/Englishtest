@@ -63,7 +63,7 @@ export const StudentInfoForm: React.FC<StudentInfoFormProps> = ({ onSubmit }) =>
             <img 
               src="https://copilot.microsoft.com/th/id/BCO.1671fab5-16d2-493f-999e-daadcc92b63b.png" 
               alt="Sha Bridge College Logo" 
-              className="w-8 h-8"
+              className="w-12 h-12"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 e.currentTarget.nextElementSibling?.classList.remove('hidden');
