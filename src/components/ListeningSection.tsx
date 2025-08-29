@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Play, Pause, Volume2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause, Volume2, RotateCcw } from 'lucide-react';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { Question } from '../types/test';
 
@@ -16,22 +16,82 @@ export const ListeningSection: React.FC<ListeningSectionProps> = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  // Audio file path - update this to match your actual file
+  const audioFile = '/audio/listening-section.mp3';
+
   const handlePlayAudio = () => {
-    if (!hasPlayed) {
-      setIsPlaying(true);
-      setHasPlayed(true);
-      
-      // Simulate audio playback for 2 minutes
-      setTimeout(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
         setIsPlaying(false);
-      }, 120000); // 2 minutes
+      } else {
+        audioRef.current.play()
+          .then(() => setIsPlaying(true))
+          .catch(error => console.error('Error playing audio:', error));
+        
+        if (!hasPlayed) {
+          setHasPlayed(true);
+        }
+      }
     }
   };
 
+  const handleResetAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.pause();
+      setIsPlaying(false);
+      setHasPlayed(false);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+      
+      // Check if audio has finished playing
+      if (audioRef.current.currentTime >= audioRef.current.duration) {
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Clean up on component unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
+      {/* Hidden audio element */}
+      <audio
+        ref={audioRef}
+        src={audioFile}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={() => setIsPlaying(false)}
+      />
+      
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-blue-800 mb-3">Listening Instructions</h3>
         <p className="text-blue-700 mb-4">
@@ -39,32 +99,34 @@ export const ListeningSection: React.FC<ListeningSectionProps> = ({
           Listen carefully and answer the questions that follow. The audio will play only once.
         </p>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mb-4">
           <button
             onClick={handlePlayAudio}
-            disabled={hasPlayed}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              hasPlayed
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              isPlaying
+                ? 'bg-blue-700 text-white'
                 : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
             }`}
           >
             {isPlaying ? (
               <>
                 <Pause className="w-5 h-5" />
-                Playing Audio...
-              </>
-            ) : hasPlayed ? (
-              <>
-                <Volume2 className="w-5 h-5" />
-                Audio Completed
+                Pause Audio
               </>
             ) : (
               <>
                 <Play className="w-5 h-5" />
-                Play Audio (Once Only)
+                Play Audio
               </>
             )}
+          </button>
+          
+          <button
+            onClick={handleResetAudio}
+            className="flex items-center gap-2 px-4 py-3 rounded-lg font-medium bg-gray-200 hover:bg-gray-300 text-gray-700 transition-all duration-200"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Reset
           </button>
           
           {isPlaying && (
@@ -73,6 +135,18 @@ export const ListeningSection: React.FC<ListeningSectionProps> = ({
               <span className="text-sm">Audio is playing...</span>
             </div>
           )}
+        </div>
+
+        {/* Audio progress bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(currentTime / duration) * 100}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-sm text-gray-600">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
         </div>
 
         {hasPlayed && (
