@@ -32,19 +32,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-full mb-8 shadow-lg">
-            <img 
-              src="https://copilot.microsoft.com/th/id/BCO.1671fab5-16d2-493f-999e-daadcc92b63b.png" 
-              alt="Sha Bridge College Logo" 
-              className="w-12 h-12"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling?.classList.remove('hidden');
-              }} 
-            />
-            <BookOpen className="w-12 h-12 text-blue-900 hidden" />
           </div>
           <h1 className="text-5xl font-bold text-white mb-6">
             Core Skills English Proficiency Test
