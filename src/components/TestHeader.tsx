@@ -24,7 +24,7 @@ export const TestHeader: React.FC<TestHeaderProps> = ({
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <img src="/sha-bridge-logo.png" alt="Sha Bridge College Logo" className="w-8 h-8" onError={(e) => {
+            <img src="/sha-bridge-logo.png" alt="Sha Bridge College Logo" className="w-12 h-12" onError={(e) => {
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling?.classList.remove('hidden');
             }} />
