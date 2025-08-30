@@ -16,21 +16,11 @@ export const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-      {/* Question Header with Logo */}
-      <div className="flex items-center gap-3 mb-4">
-        <img 
-          src="https://copilot.microsoft.com/th/id/BCO.1671fab5-16d2-493f-999e-daadcc92b63b.png" 
-          alt="Sha Bridge College Logo" 
-          className="w-12 h-12"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-          }} 
-        />
-        <div>
-          <h3 className="text-lg font-medium text-gray-800">
-            <span className="text-blue-600 font-bold">{questionNumber}.</span> {question.question}
-          </h3>
-        </div>
+      {/* Question Header */}
+      <div className="mb-4">
+        <h3 className="text-lg font-medium text-gray-800">
+          <span className="text-blue-600 font-bold">{questionNumber}.</span> {question.question}
+        </h3>
       </div>
 
       <div className="space-y-3">
