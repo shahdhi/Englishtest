@@ -24,10 +24,15 @@ export const TestHeader: React.FC<TestHeaderProps> = ({
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <img src="/sha-bridge-logo.png" alt="Sha Bridge College Logo" className="w-12 h-12" onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
-            }} />
+            <img 
+              src="https://copilot.microsoft.com/th/id/BCO.1671fab5-16d2-493f-999e-daadcc92b63b.png" 
+              alt="Sha Bridge College Logo" 
+              className="w-12 h-12" 
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }} 
+            />
             <GraduationCap className="w-8 h-8 text-blue-900 hidden" />
             <div>
               <h1 className="text-xl font-bold text-gray-800">Sha Bridge College</h1>
